@@ -1,0 +1,16 @@
+#!/bin/bash
+
+VIP=<%= node['sentinel']['vip'] %>                  # VIP
+NETMASK=<%= node['sentinel']['netmask'] %>                                       # Netmask
+INTERFACE=<%= node['sentinel']['interface'] %>      # インターフェイス
+
+cat /etc/redis.conf | grep "^slaveof" > /dev/null
+if [ $? -ne 0 ]; then
+  sudo /sbin/ip addr add ${VIP}/${NETMASK} dev ${INTERFACE}
+  sudo /sbin/arping -q -c 3 -A ${VIP} -I ${INTERFACE}
+  exit 0
+else
+  sudo /sbin/ip addr del ${VIP}/${NETMASK} dev ${INTERFACE}
+  exit 0
+fi
+exit 1
